@@ -1,42 +1,83 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { Home, Settings, Editor, Article, Profile, Auth } from './pages'
-import { AuthRoute, GuestRoute, Navbar } from './components'
+import React from 'react';
+import axios from 'axios';
+import { saveAs } from 'file-saver'; // If you want to download the PDF
 
-import './App.css'
+function fillPdf() {
+    const json = {
+        c1: [
+            'Indian Institute of Technology - 1',
+            'Resulting Branch -  1',
+            'OR -  1',
+            'CR -  1',
+        ],
+        c2: [
+            'Indian Institute of Technology - 2',
+            'Resulting Branch -  2',
+            'OR -  2',
+            'CR -  2',
+        ],
+        c3: [
+            'Indian Institute of Technology - 3',
+            'Resulting Branch -  3',
+            'OR -  3',
+            'CR -  3',
+        ],
+    };
+
+    const options = {
+        method: 'POST',
+        url: 'https://app.useanvil.com/api/v1/fill/YXj74hzV1jGDoNAqn4dD.pdf',
+        headers: {
+            'Authorization': 'Basic WEJWejZ6MHZaWU9QVjRNNFRrbGFoSHVrQWpFck9oMWo6',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://app.useanvil.com',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+        data: {
+            title: 'College Predictor',
+            fontSize: 10,
+            textColor: '#333333',
+            data: json,
+        },
+    };
+
+    axios
+        .request({
+          method: 'POST',
+          url: 'https://app.useanvil.com/api/v1/fill/YXj74hzV1jGDoNAqn4dD.pdf',
+          headers: {
+              'Authorization': 'Basic WEJWejZ6MHZaWU9QVjRNNFRrbGFoSHVrQWpFck9oMWo6',
+              'Content-Type': 'application/json'
+          },
+          data: {
+              title: 'College Predictor',
+              fontSize: 10,
+              textColor: '#333333',
+              data: json,
+          },
+      })
+        .then(function(response) {
+            const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+            saveAs(pdfBlob, 'a.pdf'); // If you want to download the PDF
+            // Alternatively, you can display the PDF in an iframe:
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            const iframe = document.createElement('iframe');
+            iframe.src = pdfUrl;
+            document.body.appendChild(iframe);
+        })
+        .catch(function(error) {
+            console.error(error);
+        });
+}
+
 
 function App() {
   return (
-    <Router>
-      <header>
-        <Navbar />
-      </header>
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <GuestRoute path="/register" element={<Auth key="register" />} />
-          <GuestRoute path="/login" element={<Auth key="login" />} />
-          <AuthRoute path="/settings" element={<Settings />} />
-          <AuthRoute path="/editor" element={<Editor />} />
-          <Route path="/editor/:slug" element={<Editor />} />
-          <Route path="/article/:slug" element={<Article />} />
-          <Route path="/profile/:username" element={<Profile />} />
-          <AuthRoute path="/@:username" element={<Profile />} />
-        </Routes>
-      </main>
-      <footer>
-        <div className="container">
-          <Link to="/" className="logo-font">
-            conduit
-          </Link>
-          <span className="attribution">
-            An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design
-            licensed under MIT.
-          </span>
-        </div>
-      </footer>
-    </Router>
-  )
+    <div className="App">
+      <h1>Welcome to my website!</h1>
+      <button onClick = { fillPdf }> Fill PDF </button>
+    </div>
+  );
 }
 
-export default App
+export default App;
